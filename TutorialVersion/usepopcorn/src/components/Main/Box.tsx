@@ -1,10 +1,10 @@
 import React, { ReactNode, useState } from "react";
 
-interface WatchedBoxProps {
+interface BoxProps {
   children: ReactNode;
 }
 
-function WatchedBox({ children }: WatchedBoxProps) {
+function Box({ children }: BoxProps) {
   const [isOpen2, setIsOpen2] = useState(true);
 
   return (
@@ -20,4 +20,4 @@ function WatchedBox({ children }: WatchedBoxProps) {
   );
 }
 
-export default WatchedBox;
+export default Box;

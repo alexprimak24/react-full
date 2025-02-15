@@ -3,8 +3,7 @@ import NavBar from "./components/NavBar/NavBar";
 import Main from "./components/Main/Main";
 import Search from "./components/NavBar/Search";
 import NumResults from "./components/NavBar/NumResults";
-import ListBox from "./components/Main/ListBox";
-import WatchedBox from "./components/Main/WatchedBox";
+import Box from "./components/Main/Box";
 import MovieList from "./components/Main/MovieList";
 import WatchedSummary from "./components/Main/WatchedSummary";
 import WatchedList from "./components/Main/WatchedList";
@@ -70,13 +69,13 @@ export default function App() {
         <NumResults movies={movies} />
       </NavBar>
       <Main>
-        <ListBox>
+        <Box>
           <MovieList movies={movies} />
-        </ListBox>
-        <WatchedBox>
+        </Box>
+        <Box>
           <WatchedSummary watched={watched} />
           <WatchedList watched={watched} />
-        </WatchedBox>
+        </Box>
       </Main>
     </>
   );
