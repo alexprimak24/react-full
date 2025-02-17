@@ -13,7 +13,7 @@ function FriendsList({
     <>
       {Object.entries(friendList).map(([name, details]) => (
         <Friend
-          key={name}
+          key={details.pfp}
           friendDetails={details}
           friendName={name}
           handleSelectFriend={handleSelectFriend}
