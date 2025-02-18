@@ -4,19 +4,22 @@ import { friendDetails } from "../constants/friendList";
 
 function FriendsList({
   handleSelectFriend,
+  selectedFriend,
   friendList,
 }: {
   handleSelectFriend: (friendName: string) => void;
   friendList: { [key: string]: friendDetails };
+  selectedFriend: string;
 }) {
   return (
     <>
       {Object.entries(friendList).map(([name, details]) => (
         <Friend
           key={details.pfp}
-          friendDetails={details}
           friendName={name}
-          handleSelectFriend={handleSelectFriend}
+          friendDetails={details}
+          isSelected={selectedFriend === name}
+          handleSelectFriend={() => handleSelectFriend(name)}
         />
       ))}
     </>

@@ -26,6 +26,7 @@ function SplitBill({
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<FormFields>();
 
@@ -34,17 +35,16 @@ function SplitBill({
   const whoIsPaying = watch("whoIsPaying");
 
   useEffect(() => {
-    if (whoIsPaying === "you") {
-      setValue("friendExpense", Math.abs(yourExpense - billVal));
-    } else {
-      setValue("friendExpense", Math.abs(billVal - yourExpense));
-    }
+    return whoIsPaying === "you"
+      ? setValue("friendExpense", Math.abs(yourExpense - billVal))
+      : setValue("friendExpense", Math.abs(billVal - yourExpense));
   }, [billVal, yourExpense, setValue, whoIsPaying]);
 
   const onSubmit: SubmitHandler<FormFields> = (data: FormFields) => {
     if (!selectedFriend) {
       return alert("Please select a friend");
     }
+
     setFriendList((prevFriendList) => ({
       ...prevFriendList,
       [selectedFriend]: {
@@ -55,7 +55,8 @@ function SplitBill({
             : prevFriendList[selectedFriend].amount - data.friendExpense,
       },
     }));
-    console.log(data);
+
+    reset();
   };
 
   // console.dir(watch("billVal")); // watch input value by passing the name of it
@@ -64,110 +65,118 @@ function SplitBill({
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="max-w-[420px] mx-auto p-6 bg-white rounded-lg shadow-md"
+      className='max-w-[420px] mx-auto p-6 bg-white rounded-lg shadow-md'
     >
-      <div className="flex flex-col gap-4 text-green-600">
+      <div className='flex flex-col gap-4 text-green-600'>
         {/* Bill Amount Field */}
-        <div className="flex flex-col">
+        <div className='flex flex-col'>
           <label
-            htmlFor="billVal"
-            className="text-lg font-medium text-gray-700"
+            htmlFor='billVal'
+            className='text-lg font-medium text-gray-700'
           >
             Bill amount
           </label>
           <input
-            id="billVal"
-            type="number"
+            id='billVal'
+            type='number'
             defaultValue={100}
             {...register("billVal", {
               required: true,
               min: 0,
               valueAsNumber: true,
             })}
-            className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className='p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
           />
           {errors.billVal && (
-            <span className="text-red-500 text-sm mt-1">
+            <span className='text-red-500 text-sm mt-1'>
               This field is required
             </span>
           )}
         </div>
 
         {/* Your Expense Field */}
-        <div className="flex flex-col">
+        <div className='flex flex-col'>
           <label
-            htmlFor="yourExpense"
-            className="text-lg font-medium text-gray-700"
+            htmlFor='yourExpense'
+            className='text-lg font-medium text-gray-700'
           >
             Your expense
           </label>
           <input
-            id="yourExpense"
-            type="number"
+            id='yourExpense'
+            type='number'
             {...register("yourExpense", {
               required: true,
               min: 0,
               valueAsNumber: true,
+
+              onChange: (e: any) =>
+                setValue(
+                  "yourExpense",
+                  Number(e.target.value) > billVal
+                    ? yourExpense
+                    : Number(e.target.value)
+                ),
             })}
-            className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className='p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
           />
           {errors.yourExpense && (
-            <span className="text-red-500 text-sm mt-1">
-              This field is required
-            </span>
+            <p className='text-red-500 text-sm mt-1'>
+              {errors.yourExpense.message}
+            </p>
           )}
         </div>
 
         {/* Friend's Expense Field */}
-        <div className="flex flex-col">
+        <div className='flex flex-col'>
           <label
-            htmlFor="friendExpense"
-            className="text-lg font-medium text-gray-700"
+            htmlFor='friendExpense'
+            className='text-lg font-medium text-gray-700'
           >
             Friend's expense
           </label>
           <input
-            id="friendExpense"
-            type="number"
+            id='friendExpense'
+            type='number'
             {...register("friendExpense", {
               required: true,
               valueAsNumber: true,
             })}
             disabled
-            className="p-2 border rounded-md bg-gray-100 cursor-not-allowed"
+            className='p-2 border rounded-md bg-gray-100 cursor-not-allowed'
           />
           {errors.friendExpense && (
-            <span className="text-red-500 text-sm mt-1">
+            <span className='text-red-500 text-sm mt-1'>
               This field is required
             </span>
           )}
         </div>
 
         {/* Who Is Paying Field */}
-        <div className="flex flex-col">
+        <div className='flex flex-col'>
           <label
-            htmlFor="whoIsPaying"
-            className="text-lg font-medium text-gray-700"
+            htmlFor='whoIsPaying'
+            className='text-lg font-medium text-gray-700'
           >
             Who is paying
           </label>
           <select
-            id="whoIsPaying"
+            id='whoIsPaying'
             {...register("whoIsPaying", { required: true })}
-            className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className='p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
           >
-            <option value="you">You</option>
-            <option value="friend">Friend</option>
+            <option value='you'>You</option>
+            <option value='friend'>Friend</option>
           </select>
           {errors.whoIsPaying && (
-            <span className="text-red-500 text-sm mt-1">
+            <span className='text-red-500 text-sm mt-1'>
               This field is required
             </span>
           )}
         </div>
 
         {/* Submit Button */}
-        <Button className="mt-5" type="submit">
+        <Button className='mt-5' type='submit'>
           Submit
         </Button>
       </div>

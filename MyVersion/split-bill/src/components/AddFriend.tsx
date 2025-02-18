@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Button from "./ui/Button";
 
 type FormFields = {
-  name: string;
+  friendsName: string;
   pfpUrl: string;
 };
 
@@ -29,9 +29,21 @@ function AddFriend({
   const [addFriendFormActive, setAddFriendFormActive] = useState(false);
 
   const onSubmit: SubmitHandler<FormFields> = (data: FormFields) => {
+    // Object.keys returns keys of my object
+    // Some checks if any of the values in the returned array satisfy some requirement
+    const isDuplicate = Object.keys(friendList).some(
+      (name) => name === data.friendsName
+    );
+    console.log(isDuplicate);
+
+    if (isDuplicate) {
+      alert("This friend already exist");
+      return;
+    }
+
     setFriendList((prevFriendList) => ({
       ...prevFriendList,
-      [data.name]: { amount: 0, pfp: data.pfpUrl },
+      [data.friendsName]: { amount: 0, pfp: data.pfpUrl },
     }));
     // localStorage.setItem = friendList.toString()
 
@@ -66,58 +78,58 @@ function AddFriend({
   return (
     <>
       {addFriendFormActive ? (
-        <div className="">
+        <div className=''>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md"
+            className='max-w-md mx-auto p-6 bg-white rounded-lg shadow-md'
           >
-            <div className="flex flex-col gap-4">
+            <div className='flex flex-col gap-4'>
               {/* Name Field */}
-              <div className="flex flex-col">
+              <div className='flex flex-col'>
                 <label
-                  htmlFor="name"
-                  className="text-lg font-medium text-gray-700"
+                  htmlFor='friendsName'
+                  className='text-lg font-medium text-gray-700'
                 >
                   Enter Name
                 </label>
                 <input
-                  id="name"
-                  type="text"
-                  defaultValue="John"
-                  {...register("name", { required: true })}
-                  className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  id='friendsName'
+                  type='text'
+                  defaultValue='John'
+                  {...register("friendsName", { required: true })}
+                  className='p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500'
                 />
-                {errors.name && (
-                  <span className="text-red-500 text-sm mt-1">
+                {errors.friendsName && (
+                  <span className='text-red-500 text-sm mt-1'>
                     This field is required
                   </span>
                 )}
               </div>
 
               {/* Pfp Url Field */}
-              <div className="flex flex-col">
+              <div className='flex flex-col'>
                 <label
-                  htmlFor="pfpUrl"
-                  className="text-lg font-medium text-gray-700"
+                  htmlFor='pfpUrl'
+                  className='text-lg font-medium text-gray-700'
                 >
                   Pfp Url
                 </label>
                 <input
-                  id="pfpUrl"
-                  type="text"
+                  id='pfpUrl'
+                  type='text'
                   {...register("pfpUrl", { required: true })}
                   disabled
-                  className="p-2 border rounded-md bg-gray-100 cursor-not-allowed"
+                  className='p-2 border rounded-md bg-gray-100 cursor-not-allowed'
                 />
                 {errors.pfpUrl && (
-                  <span className="text-red-500 text-sm mt-1">
+                  <span className='text-red-500 text-sm mt-1'>
                     This field is required
                   </span>
                 )}
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="mt-4">
+              <Button type='submit' className='mt-4'>
                 Submit
               </Button>
             </div>
