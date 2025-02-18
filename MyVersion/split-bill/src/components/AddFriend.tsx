@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { friendDetails } from "../constants/friendList";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Button from "./ui/Button";
