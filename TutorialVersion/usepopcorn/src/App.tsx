@@ -61,13 +61,17 @@ export default function App() {
   }
 
   useEffect(() => {
+    const controller = new AbortController();
     // In the console if we log result we will see 2 responses, this is due to strict mode, to be double check, but this is only in development, in prod, everything is normal
     async function fetchMovies() {
       try {
         setIsLoading(true);
         setError("");
         const res = await fetch(
-          `https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
+          `https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`,
+          //so we use it as every time we type another req is being created + old ones also being processed
+          //with it with a new keystroke we abore other ongoing requests that we done and the last one only becomes main
+          { signal: controller.signal }
         );
 
         if (!res.ok)
@@ -79,7 +83,7 @@ export default function App() {
 
         setMovies(data.Search);
       } catch (err: any) {
-        setError(err.message);
+        if (err.name !== "AbortError") setError(err.message);
       } finally {
         setIsLoading(false);
       }
@@ -89,7 +93,14 @@ export default function App() {
       setError("");
       return;
     }
+    //so on every key press actually we are entering useEffect so that we are calling Close movie to close it
+    handleCloseMovie();
     fetchMovies();
+
+    //on every new keystroke our contorller will abort existing fetch req
+    return function () {
+      controller.abort();
+    };
   }, [query]);
 
   return (

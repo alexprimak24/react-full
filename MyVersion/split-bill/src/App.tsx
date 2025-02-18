@@ -16,7 +16,6 @@ function App() {
   const handleSelectFriend = (friendName: string) => {
     setSelectedFriend(friendName);
   };
-  console.log(selectedFriend);
 
   return (
     <div className='flex gap-20'>

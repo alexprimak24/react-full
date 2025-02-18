@@ -93,14 +93,31 @@ function MovieDetails({
     fetchMovieDetails();
   }, [selectedId]);
 
-  useEffect(
-    function () {
-      if (!movie) return;
+  useEffect(() => {
+    if (!movie) return;
 
-      document.title = `Movie | ${movie.title}`;
-    },
-    [movie]
-  );
+    document.title = `Movie | ${movie.title}`;
+    //Cleanup function
+    return function () {
+      document.title = "usePopcorn";
+    };
+  }, [movie]);
+
+  //as it is also a side effect as we are directly manipulating dom, we need to wrap it into useEffect
+  //without a cleanup function even if we close MovieDetails and open and close again, these eventListeners will just accumulate
+  useEffect(() => {
+    const callback = (e: KeyboardEvent) => {
+      if (e.code === "Escape") {
+        onCloseMovie();
+      }
+    };
+
+    document.addEventListener("keydown", callback);
+    //SO REMEMBER TO ADD CLEANUP FUNCTIONS IN SUCH CASES
+    return () => {
+      document.removeEventListener("keydown", callback);
+    };
+  }, [onCloseMovie]);
 
   return (
     <div className='details'>
