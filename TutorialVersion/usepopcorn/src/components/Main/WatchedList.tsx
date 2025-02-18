@@ -17,7 +17,7 @@ function WatchedList({ watched }: WatchedListProps) {
   return (
     <ul className='list'>
       {watched.map((movie) => (
-        <WatchedMovie movie={movie} />
+        <WatchedMovie key={movie.Title} movie={movie} />
       ))}
     </ul>
   );

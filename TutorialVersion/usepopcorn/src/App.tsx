@@ -8,6 +8,8 @@ import MovieList from "./components/Main/MovieList";
 import WatchedSummary from "./components/Main/WatchedSummary";
 import WatchedList from "./components/Main/WatchedList";
 
+const KEY = process.env.REACT_APP_API_KEY as string;
+
 const tempMovieData = [
   {
     imdbID: "tt1375666",
@@ -61,6 +63,11 @@ export const average = (arr: number[]) =>
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
+
+  // if we set it like that this is awful as it will change the state and changes will be in the UI, but at the same time we will be sending an infinite requests to that api even after we fullfill our first req
+  // fetch(`https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`)
+  //   .then((res) => res.json())
+  //   .then((data) => setMovies(data));
 
   return (
     <>
