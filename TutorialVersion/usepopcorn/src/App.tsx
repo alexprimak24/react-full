@@ -9,51 +9,63 @@ import WatchedSummary from "./components/Main/WatchedSummary";
 import WatchedList from "./components/Main/WatchedList";
 import Loader from "./components/utils/Loader";
 import ErrorComponent from "./components/utils/ErrorComponent";
+import MovieDetails, { Movie } from "./components/MovieInfo/MovieDetails";
+import { KEY } from "./components/utils/constants";
 
-const KEY = process.env.REACT_APP_API_KEY as string;
-
-const tempWatchedData = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-    runtime: 148,
-    imdbRating: 8.8,
-    userRating: 10,
-  },
-  {
-    imdbID: "tt0088763",
-    Title: "Back to the Future",
-    Year: "1985",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
-    runtime: 116,
-    imdbRating: 8.5,
-    userRating: 9,
-  },
-];
+export interface WatchedMovieProps extends Movie {
+  userRating: number;
+}
 
 export const average = (arr: number[]) =>
   arr.reduce((acc, cur, _i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [watched, setWatched] = useState<WatchedMovieProps[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
-  const query = "squid game";
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
   // if we set it like that this is awful as it will change the state and changes will be in the UI, but at the same time we will be sending an infinite requests to that api even after we fullfill our first req
   // fetch(`https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`)
   //   .then((res) => res.json())
   //   .then((data) => setMovies(data));
+
+  function handleSelectMovie(id: string) {
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
+
+  function handleAddWatched(movie: WatchedMovieProps) {
+    setWatched((watched) => [...watched, movie]);
+    handleCloseMovie();
+    //I wanted to do something like that to implement logic on userAlreadyRate, but in tutorial he did a bit different so just leave it here
+    // const isAlreadyRated = watched.some(
+    //   (watchedMovie) => watchedMovie.title === movie.title
+    // );
+
+    // if (!isAlreadyRated) {
+    //   setWatched((watched) => [...watched, movie]);
+    //   handleCloseMovie();
+    //   return;
+    // }
+    // console.log("Sorry But you already rated");
+  }
+
+  function handleDeleteWatched(id: string) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
 
   useEffect(() => {
     // In the console if we log result we will see 2 responses, this is due to strict mode, to be double check, but this is only in development, in prod, everything is normal
     async function fetchMovies() {
       try {
         setIsLoading(true);
+        setError("");
         const res = await fetch(
           `https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
         );
@@ -62,31 +74,57 @@ export default function App() {
           throw new Error("Something went wrong with fetching movies");
 
         const data = await res.json();
+
+        if (data.Response === "False") throw new Error("Movie not found");
+
         setMovies(data.Search);
-        setIsLoading(false);
       } catch (err: any) {
         setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
     }
+    if (query.length < 3) {
+      setMovies([]);
+      setError("");
+      return;
+    }
     fetchMovies();
-  }, []);
+  }, [query]);
 
   return (
     <>
       <NavBar>
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
         <Box>
           {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
-          {!isLoading && !error && <MovieList movies={movies} />}
           {isLoading && <Loader />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorComponent message={error} />}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedList watched={watched} />
+          {selectedId ? (
+            <MovieDetails
+              key={selectedId}
+              watched={watched}
+              selectedId={selectedId}
+              onCloseMovie={handleCloseMovie}
+              onAddWatched={handleAddWatched}
+            />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedList
+                watched={watched}
+                onDeleteWatched={handleDeleteWatched}
+              />
+            </>
+          )}
         </Box>
       </Main>
     </>

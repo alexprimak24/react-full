@@ -1,23 +1,21 @@
 import React from "react";
 import WatchedMovie from "./WatchedMovie";
+import { WatchedMovieProps } from "../../App";
 
 interface WatchedListProps {
-  watched: {
-    imdbID: string;
-    Title: string;
-    Year: string;
-    Poster: string;
-    runtime: number;
-    imdbRating: number;
-    userRating: number;
-  }[];
+  watched: WatchedMovieProps[];
+  onDeleteWatched: (id: string) => void;
 }
 
-function WatchedList({ watched }: WatchedListProps) {
+function WatchedList({ watched, onDeleteWatched }: WatchedListProps) {
   return (
     <ul className='list'>
       {watched.map((movie) => (
-        <WatchedMovie key={movie.imdbID} movie={movie} />
+        <WatchedMovie
+          key={`${movie.title}${movie.director}`}
+          movie={movie}
+          onDeleteWatched={onDeleteWatched}
+        />
       ))}
     </ul>
   );

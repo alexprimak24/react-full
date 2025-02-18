@@ -1,22 +1,15 @@
 import React from "react";
-
+import { WatchedMovieProps as MovieProps } from "../../App";
 interface WatchedMovieProps {
-  movie: {
-    imdbID: string;
-    Title: string;
-    Year: string;
-    Poster: string;
-    runtime: number;
-    imdbRating: number;
-    userRating: number;
-  };
+  movie: MovieProps;
+  onDeleteWatched: (id: string) => void;
 }
 
-function WatchedMovie({ movie }: WatchedMovieProps) {
+function WatchedMovie({ movie, onDeleteWatched }: WatchedMovieProps) {
   return (
-    <li key={movie.imdbID}>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
-      <h3>{movie.Title}</h3>
+    <li key={`${movie.title}${movie.director}`}>
+      <img src={movie.poster} alt={`${movie.title} poster`} />
+      <h3>{movie.title}</h3>
       <div>
         <p>
           <span>⭐️</span>
@@ -30,6 +23,13 @@ function WatchedMovie({ movie }: WatchedMovieProps) {
           <span>⏳</span>
           <span>{movie.runtime} min</span>
         </p>
+
+        <button
+          className='btn-delete'
+          onClick={() => onDeleteWatched(movie.imdbID)}
+        >
+          X
+        </button>
       </div>
     </li>
   );

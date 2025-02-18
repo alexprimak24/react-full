@@ -8,13 +8,14 @@ interface MovieListProps {
     Year: string;
     Poster: string;
   }[];
+  onSelectMovie: (id: string) => void;
 }
 
-function MovieList({ movies }: MovieListProps) {
+function MovieList({ movies, onSelectMovie }: MovieListProps) {
   return (
-    <ul className='list'>
+    <ul className='list list-movies'>
       {movies?.map((movie) => (
-        <Movie key={movie.imdbID} movie={movie} />
+        <Movie key={movie.imdbID} movie={movie} onSelectMovie={onSelectMovie} />
       ))}
     </ul>
   );

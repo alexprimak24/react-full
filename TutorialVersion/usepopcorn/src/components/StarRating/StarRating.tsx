@@ -8,7 +8,7 @@ interface StartRatingProps {
   className?: string;
   messages?: string[];
   defaultRating?: number;
-  onSetRating?: React.Dispatch<React.SetStateAction<number>>;
+  onSetRating?: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export default function StartRating({
