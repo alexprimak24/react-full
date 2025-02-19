@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ErrorComponent from "../utils/ErrorComponent";
 import { KEY } from "../utils/constants";
 import Loader from "../utils/Loader";
@@ -45,6 +45,15 @@ function MovieDetails({
   //DO THAT IN YOUR PROJECTS :)
   // We can btw just destructure this way so we won't need to type movie?. everywhere
   // const {Title: title, Year: year, Poster: poster} = movie;
+
+  // DO NOT DO THIS
+  // It will not work as expected as value that useState holds is being set on the initial render, so even
+  // if movie?.imdbRating > 8 indeed will be true, but on the render we can't check it, it will be false
+  // const [isTop,setIsTop] = useState(movie?.imdbRating > 8)
+
+  // If we really need that just use
+  // const isTop = movie?.imdbRating > 8;
+  // And its value will change each time the MovieDetails component will rerender
 
   function handleAdd() {
     if (movie) {

@@ -21,16 +21,24 @@ export const average = (arr: number[]) =>
 
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState<WatchedMovieProps[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // if we set it like that this is awful as it will change the state and changes will be in the UI, but at the same time we will be sending an infinite requests to that api even after we fullfill our first req
-  // fetch(`https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`)
-  //   .then((res) => res.json())
-  //   .then((data) => setMovies(data));
+  // const [watched, setWatched] = useState<WatchedMovieProps[]>([]);
+  // We can set the state with function like that
+  // Just remember FUNCTION HAVE TO BE PURE AND CANT RECEIVE ARGS
+  // Pass the function that React can call later, do not call function inside useState
+  const [watched, setWatched] = useState<WatchedMovieProps[]>(() => {
+    try {
+      const storedValue = localStorage.getItem("watched");
+      return JSON.parse(storedValue || "[]");
+    } catch (error) {
+      console.error("Error parsing watched movies: ", error);
+      return [];
+    }
+  });
 
   function handleSelectMovie(id: string) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -54,11 +62,23 @@ export default function App() {
     //   return;
     // }
     // console.log("Sorry But you already rated");
+
+    //We can do it here too
+    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
 
   function handleDeleteWatched(id: string) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
+  useEffect(() => {
+    localStorage.setItem("watched", JSON.stringify(watched));
+  }, [watched]);
+
+  // if we set it like that this is awful as it will change the state and changes will be in the UI, but at the same time we will be sending an infinite requests to that api even after we fullfill our first req
+  // fetch(`https://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`)
+  //   .then((res) => res.json())
+  //   .then((data) => setMovies(data));
 
   useEffect(() => {
     const controller = new AbortController();
