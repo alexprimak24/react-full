@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ErrorComponent from "../utils/ErrorComponent";
-import { KEY } from "../utils/constants";
+import { KEY } from "../../constants/constants";
 import Loader from "../utils/Loader";
 import StartRating from "../StarRating/StarRating";
 import { WatchedMovieProps } from "../../App";
+import { useKey } from "../../hooks/useKey";
 
 export interface Movie {
   title: string;
@@ -38,6 +39,17 @@ function MovieDetails({
   const [error, setError] = useState("");
 
   const [userRating, setUserRating] = useState(0);
+
+  const countRef = useRef(0);
+
+  useEffect(() => {
+    //to avoid incrementing on the initial render
+    if (userRating) {
+      //so it won't make the page to rerender, and once we press add rate button
+      //that value will be passed anyway to the App component
+      countRef.current = countRef.current++;
+    }
+  }, [userRating]);
   // We can actually remove it and use !userRatedValue below
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
 
@@ -59,6 +71,7 @@ function MovieDetails({
     if (movie) {
       const newWatchedMovie = {
         userRating: Number(userRating),
+        countRatingDesicions: countRef.current,
         ...movie,
       };
       onAddWatched(newWatchedMovie);
@@ -112,21 +125,23 @@ function MovieDetails({
     };
   }, [movie]);
 
+  useKey("Escape", onCloseMovie);
+  //MOVED TO CUSTOM HOOK, BUT COMMENTS HERE SO DIDN"T DELETE
   //as it is also a side effect as we are directly manipulating dom, we need to wrap it into useEffect
   //without a cleanup function even if we close MovieDetails and open and close again, these eventListeners will just accumulate
-  useEffect(() => {
-    const callback = (e: KeyboardEvent) => {
-      if (e.code === "Escape") {
-        onCloseMovie();
-      }
-    };
+  // useEffect(() => {
+  //   const callback = (e: KeyboardEvent) => {
+  //     if (e.code === "Escape") {
+  //       onCloseMovie();
+  //     }
+  //   };
 
-    document.addEventListener("keydown", callback);
-    //SO REMEMBER TO ADD CLEANUP FUNCTIONS IN SUCH CASES
-    return () => {
-      document.removeEventListener("keydown", callback);
-    };
-  }, [onCloseMovie]);
+  //   document.addEventListener("keydown", callback);
+  //   //SO REMEMBER TO ADD CLEANUP FUNCTIONS IN SUCH CASES
+  //   return () => {
+  //     document.removeEventListener("keydown", callback);
+  //   };
+  // }, [onCloseMovie]);
 
   return (
     <div className='details'>

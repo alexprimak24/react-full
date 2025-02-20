@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useKey } from "../../hooks/useKey";
 
 interface SearchProps {
   query: string;
@@ -13,17 +14,26 @@ function Search({ query, setQuery }: SearchProps) {
   // el.focus();
   // }, []);
 
+  //MOVED TO CUSTOM HOOK, BUT COMMENTS HERE SO DIDN"T DELETE
   //just reminder useEffect RUNS AFTER THE DOM HAS BEEN LOADED
-  useEffect(() => {
-    function callback(e: KeyboardEvent) {
-      if (document.activeElement === inputEl.current) return;
-      if (e.code === "Enter") inputEl.current?.focus();
-      setQuery("");
-    }
-    document.addEventListener("keydown", callback);
+  // useEffect(() => {
+  //   function callback(e: KeyboardEvent) {
+  //     if (document.activeElement === inputEl.current) return;
+  //     if (e.code === "Enter") inputEl.current?.focus();
+  //     setQuery("");
+  //   }
+  //   document.addEventListener("keydown", callback);
 
-    return () => document.addEventListener("keydown", callback);
-  }, [setQuery]);
+  //   return () => document.addEventListener("keydown", callback);
+  // }, [setQuery]);
+
+  //we can even paste a function like that
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current?.focus();
+    setQuery("");
+  });
+
   return (
     <input
       className='search'
