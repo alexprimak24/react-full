@@ -2,24 +2,36 @@ import { useReducer, useState } from "react";
 
 interface IncrementAction {
   type: 'increment';
-  payload?: number; // optional for increment
+  payload?: number; 
 }
 
 interface DecrementAction {
   type: 'decrement';
-  payload?: number; // optional for decrement
+  payload?: number; 
 }
 
 interface SetCountAction {
   type: 'setCount';
-  payload: number; // required for setCount
+  payload: number; 
 }
 
-type Action = IncrementAction | DecrementAction | SetCountAction;
+interface SetStepAction {
+  type: 'setStep';
+  payload: number; 
+}
+
+interface ResetAction {
+  type: 'reset';
+}
+
+type Action = IncrementAction | DecrementAction | SetCountAction | SetStepAction | ResetAction;
 
 interface State {
   count:number;
+  step:number
 }
+
+const initialState = {count:0, step:1}
 
 //takes current state and action
 function reducer(state:State, action: Action) {
@@ -27,28 +39,36 @@ function reducer(state:State, action: Action) {
 
   switch(type){
     case "increment": {
-      return {...state, count: state.count + 1}
+      //from state.step we take the step and increment our count with it
+      return {...state, count: state.count + state.step}
     }
     case "decrement": {
-      return {...state, count: state.count - 1}
+      return {...state, count: state.count - state.step}
     }
     case "setCount": {
       return {...state, count: action.payload }
     }
+    case "setStep": {
+      return {...state, step: action.payload }
+    }
+    case "reset": {
+      return {step: 1, count: 0 }
+    }
+    default:
+      throw new Error("Unknown action");
   }
 
 }
 
 function DateCounter() {
-  // const [count, setCount] = useState(0);
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const {count, step} = state;
 
-  const [count, dispatch] = useReducer(reducer, {count: 0})
 
-  const [step, setStep] = useState(1);
 
   // This mutates the date object.
   const date = new Date("june 21 2027");
-  date.setDate(date.getDate() + count.count);
+  date.setDate(date.getDate() + state.count);
 console.log(date.setDate(date.getDate() + 100))
   const dec = function () {
     dispatch({type:"decrement", payload: -1})
@@ -63,13 +83,11 @@ console.log(date.setDate(date.getDate() + 100))
   };
 
   const defineStep = function (e:React.ChangeEvent<HTMLInputElement >) {
-    setStep(Number(e.target.value));
+    dispatch({type:"setStep", payload: Number(e.target.value)})
   };
 
   const reset = function () {
-    dispatch({type:"setCount", payload: 0})
-    // setCount(0);
-    setStep(1);
+    dispatch({type:"reset" })
   };
 
   return (
@@ -87,7 +105,7 @@ console.log(date.setDate(date.getDate() + 100))
 
       <div>
         <button onClick={dec}>-</button>
-        <input value={count.count} onChange={defineCount} />
+        <input value={count} onChange={defineCount} />
         <button onClick={inc}>+</button>
       </div>
 
