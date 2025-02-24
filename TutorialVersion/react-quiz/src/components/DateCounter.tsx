@@ -1,25 +1,65 @@
-import { useState } from "react";
+import { useReducer, useState } from "react";
+
+interface IncrementAction {
+  type: 'increment';
+  payload?: number; // optional for increment
+}
+
+interface DecrementAction {
+  type: 'decrement';
+  payload?: number; // optional for decrement
+}
+
+interface SetCountAction {
+  type: 'setCount';
+  payload: number; // required for setCount
+}
+
+type Action = IncrementAction | DecrementAction | SetCountAction;
+
+interface State {
+  count:number;
+}
+
+//takes current state and action
+function reducer(state:State, action: Action) {
+  const {type} = action;
+
+  switch(type){
+    case "increment": {
+      return {...state, count: state.count + 1}
+    }
+    case "decrement": {
+      return {...state, count: state.count - 1}
+    }
+    case "setCount": {
+      return {...state, count: action.payload }
+    }
+  }
+
+}
 
 function DateCounter() {
-  const [count, setCount] = useState(0);
+  // const [count, setCount] = useState(0);
+
+  const [count, dispatch] = useReducer(reducer, {count: 0})
+
   const [step, setStep] = useState(1);
 
   // This mutates the date object.
   const date = new Date("june 21 2027");
-  date.setDate(date.getDate() + count);
-
+  date.setDate(date.getDate() + count.count);
+console.log(date.setDate(date.getDate() + 100))
   const dec = function () {
-    // setCount((count) => count - 1);
-    setCount((count) => count - step);
+    dispatch({type:"decrement", payload: -1})
   };
 
   const inc = function () {
-    // setCount((count) => count + 1);
-    setCount((count) => count + step);
+    dispatch({type:"increment", payload: 1})
   };
 
   const defineCount = function (e:React.ChangeEvent<HTMLInputElement >) {
-    setCount(Number(e.target.value));
+    dispatch({type:"setCount", payload: Number(e.target.value)})
   };
 
   const defineStep = function (e:React.ChangeEvent<HTMLInputElement >) {
@@ -27,7 +67,8 @@ function DateCounter() {
   };
 
   const reset = function () {
-    setCount(0);
+    dispatch({type:"setCount", payload: 0})
+    // setCount(0);
     setStep(1);
   };
 
@@ -46,7 +87,7 @@ function DateCounter() {
 
       <div>
         <button onClick={dec}>-</button>
-        <input value={count} onChange={defineCount} />
+        <input value={count.count} onChange={defineCount} />
         <button onClick={inc}>+</button>
       </div>
 
