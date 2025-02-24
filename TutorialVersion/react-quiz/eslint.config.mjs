@@ -41,7 +41,6 @@ export default [
       // 'comma-dangle': ['error', 'always-multiline'],
       indent: ['error', 2, { SwitchCase: 1 }],
       'arrow-parens': ['warn', 'always'],
-      'linebreak-style': ['error', 'unix'],
     },
   },
 ];
