@@ -1,7 +1,10 @@
 import React, { useEffect, useReducer } from 'react';
-import DateCounter from './components/DateCounter';
 import Header from './components/Header';
 import Main from './components/Main';
+import Loader from './components/Loader';
+import { Error as ErrorComponent } from './components/Error';
+import StartScreen from './components/StartScreen';
+import Question from './components/Question';
 
 enum STATUS {
   LOADING = 'loading',
@@ -32,8 +35,11 @@ interface DataPresentAction {
 interface NoDataPresentAction {
   type: 'dataFailed';
 }
+interface StartQuizAction {
+  type: 'start';
+}
 
-type Action = DataPresentAction | NoDataPresentAction;
+export type Action = DataPresentAction | NoDataPresentAction | StartQuizAction;
 
 const initialState = {
   questions: [],
@@ -48,13 +54,18 @@ function reducer(state: State, action: Action) {
     case 'dataFailed': {
       return { ...state, status: STATUS.ERROR };
     }
+    case 'start': {
+      return { ...state, status: STATUS.ACTIVE };
+    }
     default:
       throw new Error('Action unknown');
   }
 }
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status }, dispatch] = useReducer(reducer, initialState);
+
+  const numQuestions = questions.length;
 
   useEffect(() => {
     fetch('http://localhost:8000/questions')
@@ -66,8 +77,12 @@ function App() {
     <div className="app">
       <Header />
       <Main>
-        <p>1/15</p>
-        <p>Question?</p>
+        {status === STATUS.LOADING && <Loader />}
+        {status === STATUS.ERROR && <ErrorComponent />}
+        {status === STATUS.READY && (
+          <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
+        )}
+        {status === STATUS.ACTIVE && <Question />}
       </Main>
     </div>
   );

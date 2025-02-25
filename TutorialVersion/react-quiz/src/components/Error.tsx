@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Error() {
+export function Error() {
   return (
     <p className="error">
       <span>💥</span> There was an error fecthing questions.
