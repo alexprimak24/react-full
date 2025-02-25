@@ -12,6 +12,7 @@ import RestartButton from './components/RestartButton';
 import Timer from './components/Timer';
 import Footer from './components/Footer';
 
+/* eslint-disable no-unused-vars */
 enum STATUS {
   LOADING = 'loading',
   ERROR = 'error',
@@ -19,6 +20,8 @@ enum STATUS {
   ACTIVE = 'active',
   FINISHED = 'finished',
 }
+/* eslint-enable no-unused-vars */
+
 //FOR STATE
 export interface Question {
   question: string;
