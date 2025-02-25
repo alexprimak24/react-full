@@ -1,6 +1,5 @@
 import React from 'react';
 import { Action } from '../App';
-import FinishScreen from './FinishScreen';
 
 interface NextButtonProps {
   dispatch: React.ActionDispatch<[action: Action]>;
