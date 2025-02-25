@@ -5,6 +5,8 @@ import Loader from './components/Loader';
 import { Error as ErrorComponent } from './components/Error';
 import StartScreen from './components/StartScreen';
 import Question from './components/Question';
+import NextButton from './components/NextButton';
+import Progress from './components/Progress';
 
 enum STATUS {
   LOADING = 'loading',
@@ -14,7 +16,7 @@ enum STATUS {
   FINISHED = 'finished',
 }
 //FOR STATE
-interface Question {
+export interface Question {
   question: string;
   options: string[];
   correctOption: number;
@@ -24,6 +26,9 @@ interface Question {
 interface State {
   questions: Question[];
   status: STATUS;
+  index: number;
+  answer: number | null;
+  points: number;
 }
 
 //FOR ACTION
@@ -39,13 +44,31 @@ interface StartQuizAction {
   type: 'start';
 }
 
-export type Action = DataPresentAction | NoDataPresentAction | StartQuizAction;
+interface NewAnswerAction {
+  type: 'newAnswer';
+  payload: number;
+}
 
-const initialState = {
+interface NextQuestionAction {
+  type: 'nextQuestion';
+}
+
+export type Action =
+  | DataPresentAction
+  | NoDataPresentAction
+  | StartQuizAction
+  | NewAnswerAction
+  | NextQuestionAction;
+
+const initialState: State = {
   questions: [],
   // "loading", "error", "ready", "active", "finished"
   status: STATUS.LOADING,
+  index: 0,
+  answer: null,
+  points: 0,
 };
+
 function reducer(state: State, action: Action) {
   switch (action.type) {
     case 'dataReceived': {
@@ -57,20 +80,41 @@ function reducer(state: State, action: Action) {
     case 'start': {
       return { ...state, status: STATUS.ACTIVE };
     }
+    case 'newAnswer': {
+      const question = state.questions.at(state.index);
+      return {
+        ...state,
+        answer: action.payload,
+        points:
+          action.payload === question?.correctOption
+            ? state.points + question.points
+            : state.points,
+      };
+    }
+    case 'nextQuestion': {
+      return { ...state, index: state.index++, answer: null };
+    }
     default:
       throw new Error('Action unknown');
   }
 }
 
 function App() {
-  const [{ questions, status }, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
+    reducer,
+    initialState,
+  );
 
   const numQuestions = questions.length;
-
+  const maxPossiblePoints = questions.reduce(
+    (prev, cur) => prev + cur.points,
+    0,
+  );
   useEffect(() => {
     fetch('http://localhost:8000/questions')
       .then((res) => res.json())
       .then((data) => dispatch({ type: 'dataReceived', payload: data }))
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
       .catch((err) => dispatch({ type: 'dataFailed' }));
   }, []);
   return (
@@ -82,7 +126,23 @@ function App() {
         {status === STATUS.READY && (
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
-        {status === STATUS.ACTIVE && <Question />}
+        {status === STATUS.ACTIVE && (
+          <>
+            <Progress
+              index={index}
+              numQuestions={questions.length}
+              points={points}
+              maxPossiblePoints={maxPossiblePoints}
+              answer={answer}
+            />
+            <Question
+              question={questions[index]}
+              dispatch={dispatch}
+              answer={answer}
+            />
+            <NextButton dispatch={dispatch} answer={answer} />
+          </>
+        )}
       </Main>
     </div>
   );
